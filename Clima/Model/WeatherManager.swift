@@ -53,6 +53,8 @@ struct WeatherManager {
             let decodedData = try decoder.decode(WeatherData.self, from: weatherData)
             print(decodedData.main.temp)
             print(decodedData.weather[0].weatherDescription)
+            print(decodedData.id)
+            print(getConditionName(weatherId: decodedData.id))
         } catch{
             print(error)
         }
@@ -60,17 +62,17 @@ struct WeatherManager {
     func getConditionName(weatherId: Int) -> String {
         switch weatherId {
         case 200...232:
-            return "Thunderstorm"
+            return "cloud.bolt"
         case 300...321:
-            return "Drizzle"
+            return "cloud.drizzle"
         case 500...531:
-            return "Rain"
+            return "cloud.rain"
         case 600...622:
-            return "Snow"
+            return "cloud.snow"
         case 800:
-            return "Clear"
+            return "sun.max"
         case 801...804:
-            return "Clouds"
+            return "cloud"
         default:
             return "ID is definitely around 700 or not found"
         }
