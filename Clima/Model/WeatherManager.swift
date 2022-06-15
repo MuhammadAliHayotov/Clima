@@ -12,7 +12,8 @@ import Foundation
 //create a protocol
 //create it in the same file where the class exists
 protocol WeatherManagerDelegate {
-    func didUpdateWeather(weather: WeatherModel)
+    func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel)
+    func didFailWithError(error: Error)
 }
 
 
@@ -43,14 +44,16 @@ struct WeatherManager {
             //giving the session a task
             let task = session.dataTask(with: url) { data, response, error in
                 if error != nil {
-                    print(error!)
+                    //print(error!)
+                    //if network issue or some other error, then process it in here according to our delegate
+                    self.delegate?.didFailWithError(error: error!)
                     return
                 }
                 
                 if let safeData = data {
                     //get the data in JSON format and pass it to parser
-                    if let weather = self.parseJSON(weatherData: safeData){
-                        self.delegate?.didUpdateWeather(weather: weather)//use protocol
+                    if let weather = self.parseJSON(safeData){
+                        self.delegate?.didUpdateWeather(self, weather: weather)//use protocol
                     }
                 }
             }
@@ -60,7 +63,7 @@ struct WeatherManager {
         }
     }
     
-    func parseJSON(weatherData: Data) -> WeatherModel? {
+    func parseJSON(_ weatherData: Data) -> WeatherModel? {
         let decoder = JSONDecoder()
         do{
             //decode from JSON to Swift
@@ -76,6 +79,8 @@ struct WeatherManager {
 
             
         } catch{
+            //update error
+            delegate?.didFailWithError(error: error)
             //in case of error return nil
             return nil
         }
